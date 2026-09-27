@@ -1,0 +1,16 @@
+meta {
+  name: 16 Locked Lesson
+  type: http
+  seq: 16
+}
+get {
+  url: {{baseUrl}}/api/v1/lessons/{{nextLessonId}}/exercises
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("locked lesson returns 403", function () { expect(res.status).to.equal(403); });
+}

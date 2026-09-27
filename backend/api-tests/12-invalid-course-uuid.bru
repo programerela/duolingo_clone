@@ -1,0 +1,16 @@
+meta {
+  name: 12 Invalid Course UUID
+  type: http
+  seq: 12
+}
+get {
+  url: {{baseUrl}}/api/v1/courses/not-a-uuid/path
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("bad UUID returns 400", function () { expect(res.status).to.equal(400); });
+}

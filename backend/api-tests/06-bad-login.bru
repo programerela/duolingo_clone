@@ -1,0 +1,16 @@
+meta {
+  name: 06 Bad Login
+  type: http
+  seq: 6
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+body:json {
+  {"emailOrUsername":"{{testEmail}}","password":"wrongpassword"}
+}
+tests {
+  test("wrong password returns 401", function () { expect(res.status).to.equal(401); });
+}

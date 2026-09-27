@@ -1,0 +1,19 @@
+meta {
+  name: 22 Incomplete Lesson Submission
+  type: http
+  seq: 22
+}
+post {
+  url: {{baseUrl}}/api/v1/lessons/{{lessonId}}/complete
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+body:json {
+  {"answers":[{"exerciseId":"{{ex1Id}}","answer":"Hello"}],"durationSeconds":10}
+}
+tests {
+  test("all exercises are required", function () { expect(res.status).to.equal(400); });
+}

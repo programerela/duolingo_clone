@@ -39,7 +39,20 @@ export async function listCourses(req: Request, res: Response) {
     [userId]
   );
 
-  res.json({ courses: result.rows });
+  res.json({
+    courses: result.rows.map((course) => ({
+      id: course.id,
+      sourceLanguageCode: course.source_language_code,
+      sourceLanguageName: course.source_language_name,
+      targetLanguageCode: course.target_language_code,
+      targetLanguageName: course.target_language_name,
+      title: course.title,
+      flagKey: course.flag_key,
+      joined: course.joined,
+      isUserActive: course.is_user_active,
+      courseXp: course.course_xp
+    }))
+  });
 }
 
 export async function activateCourse(req: Request, res: Response) {

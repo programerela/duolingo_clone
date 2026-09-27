@@ -1,0 +1,16 @@
+meta {
+  name: 36 Spanish Progress Preserved
+  type: http
+  seq: 36
+}
+get {
+  url: {{baseUrl}}/api/v1/courses/{{spanishCourseId}}/path
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("switching courses does not erase Spanish progress", function () { const lessons=res.body.sections.flatMap(s=>s.units.flatMap(u=>u.lessons)); expect(lessons[0].status).to.equal("COMPLETED"); expect(lessons[0].completionCount).to.equal(2); expect(lessons[1].status).to.equal("COMPLETED"); });
+}

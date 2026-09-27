@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import {
+  checkExerciseAnswer,
   completeLesson,
   getLessonExercises
 } from '../controllers/lessonController';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { validate } from '../middleware/validate';
 import {
+  checkExerciseSchema,
   completeLessonSchema,
   lessonIdParamsSchema
 } from '../schemas/lessonSchemas';
@@ -15,6 +17,11 @@ const router = Router();
 
 router.use(authMiddleware);
 router.get('/:id/exercises', validate(lessonIdParamsSchema), asyncHandler(getLessonExercises));
+router.post(
+  '/:lessonId/exercises/:exerciseId/check',
+  validate(checkExerciseSchema),
+  asyncHandler(checkExerciseAnswer)
+);
 router.post('/:id/complete', validate(completeLessonSchema), asyncHandler(completeLesson));
 
 export default router;

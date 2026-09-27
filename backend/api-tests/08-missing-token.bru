@@ -1,0 +1,13 @@
+meta {
+  name: 08 Missing Access Token
+  type: http
+  seq: 8
+}
+get {
+  url: {{baseUrl}}/api/v1/me
+  body: none
+  auth: none
+}
+tests {
+  test("protected route rejects missing token", function () { expect(res.status).to.equal(401); expect(res.body.error).to.equal("Missing access token"); });
+}

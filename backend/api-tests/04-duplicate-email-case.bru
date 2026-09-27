@@ -1,0 +1,19 @@
+meta {
+  name: 04 Duplicate Email Case Insensitive
+  type: http
+  seq: 4
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+script:pre-request {
+  bru.setEnvVar("upperEmail", bru.getEnvVar("testEmail").toUpperCase());
+}
+body:json {
+  {"email":"{{upperEmail}}","username":"case_email_unique_user","password":"password123"}
+}
+tests {
+  test("email uniqueness is case insensitive", function () { expect(res.status).to.equal(409); });
+}

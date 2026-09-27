@@ -1,0 +1,16 @@
+meta {
+  name: 03 Duplicate Register
+  type: http
+  seq: 3
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+body:json {
+  {"email":"{{testEmail}}","username":"{{testUsername}}","password":"password123"}
+}
+tests {
+  test("duplicate exact user is rejected", function () { expect(res.status).to.equal(409); });
+}

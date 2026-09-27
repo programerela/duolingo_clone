@@ -1,0 +1,30 @@
+meta {
+  name: 15 Spanish Path Initial
+  type: http
+  seq: 15
+}
+get {
+  url: {{baseUrl}}/api/v1/courses/{{spanishCourseId}}/path
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+script:post-response {
+  if (res.status === 200) {
+    const lessons = res.body.sections.flatMap(s => s.units.flatMap(u => u.lessons));
+    bru.setEnvVar("lessonId", lessons[0].id);
+    bru.setEnvVar("nextLessonId", lessons[1].id);
+    bru.setEnvVar("thirdLessonId", lessons[2].id);
+  }
+}
+tests {
+  test("first Spanish lesson available and next locked", function () {
+    expect(res.status).to.equal(200);
+    const lessons = res.body.sections.flatMap(s => s.units.flatMap(u => u.lessons));
+    expect(lessons).to.have.length(9);
+    expect(lessons[0].status).to.equal("AVAILABLE");
+    expect(lessons[1].status).to.equal("LOCKED");
+  });
+}

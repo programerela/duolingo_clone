@@ -1,0 +1,16 @@
+meta {
+  name: 09 Invalid Access Token
+  type: http
+  seq: 9
+}
+get {
+  url: {{baseUrl}}/api/v1/me
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: definitely.invalid.token
+}
+tests {
+  test("protected route rejects invalid token", function () { expect(res.status).to.equal(401); });
+}

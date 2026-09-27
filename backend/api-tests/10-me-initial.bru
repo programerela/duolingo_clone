@@ -1,0 +1,23 @@
+meta {
+  name: 10 Me Initial
+  type: http
+  seq: 10
+}
+get {
+  url: {{baseUrl}}/api/v1/me
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("new user has initial stats", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.stats.xpTotal).to.equal(0);
+    expect(res.body.stats.streak).to.equal(0);
+    expect(res.body.stats.energy.current).to.equal(25);
+    expect(res.body.stats.lessonsCompleted).to.equal(0);
+    expect(res.body.activeCourse).to.equal(null);
+  });
+}

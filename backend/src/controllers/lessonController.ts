@@ -2,10 +2,19 @@ import { Request, Response } from 'express';
 import { query, withTransaction } from '../config/db';
 import { HttpError } from '../utils/httpError';
 
-export async function getLessonExercises(req: Request, res: Response) {
-  const userId = req.user!.id;
-  const lessonId = req.params.id;
+function normalizeAnswer(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[’‘]/g, "'")
+    .replace(/\s+/g, ' ');
+}
 
+function answersMatch(given: string, correct: string): boolean {
+  return normalizeAnswer(given) === normalizeAnswer(correct);
+}
+
+async function assertLessonAccessible(userId: string, lessonId: string) {
   const lessonResult = await query<{
     id: string;
     title: string;
@@ -26,14 +35,15 @@ export async function getLessonExercises(req: Request, res: Response) {
   );
 
   const lesson = lessonResult.rows[0];
+  if (!lesson) throw new HttpError(404, 'Lesson not found');
+  if (lesson.status === 'LOCKED') throw new HttpError(403, 'Lesson is locked');
+  return lesson;
+}
 
-  if (!lesson) {
-    throw new HttpError(404, 'Lesson not found');
-  }
-
-  if (lesson.status === 'LOCKED') {
-    throw new HttpError(403, 'Lesson is locked');
-  }
+export async function getLessonExercises(req: Request, res: Response) {
+  const userId = req.user!.id;
+  const lessonId = req.params.id;
+  const lesson = await assertLessonAccessible(userId, lessonId);
 
   const exercises = await query<{
     id: string;
@@ -41,7 +51,6 @@ export async function getLessonExercises(req: Request, res: Response) {
     type: string;
     instruction: string | null;
     prompt: string;
-    correct_answer: string;
     metadata_json: Record<string, unknown>;
   }>(
     `
@@ -51,7 +60,6 @@ export async function getLessonExercises(req: Request, res: Response) {
         type,
         instruction,
         prompt,
-        correct_answer,
         metadata_json
       FROM exercises
       WHERE lesson_id = $1
@@ -71,21 +79,44 @@ export async function getLessonExercises(req: Request, res: Response) {
       type: exercise.type,
       instruction: exercise.instruction,
       prompt: exercise.prompt,
-      correctAnswer: exercise.correct_answer,
       metadata: exercise.metadata_json
     }))
+  });
+}
+
+export async function checkExerciseAnswer(req: Request, res: Response) {
+  const userId = req.user!.id;
+  const { lessonId, exerciseId } = req.params;
+  const { answer } = req.body;
+
+  await assertLessonAccessible(userId, lessonId);
+
+  const exerciseResult = await query<{
+    id: string;
+    correct_answer: string;
+  }>(
+    `
+      SELECT id, correct_answer
+      FROM exercises
+      WHERE id = $1 AND lesson_id = $2
+    `,
+    [exerciseId, lessonId]
+  );
+
+  const exercise = exerciseResult.rows[0];
+  if (!exercise) throw new HttpError(404, 'Exercise not found in this lesson');
+
+  res.json({
+    exerciseId: exercise.id,
+    correct: answersMatch(answer, exercise.correct_answer),
+    correctAnswer: exercise.correct_answer
   });
 }
 
 export async function completeLesson(req: Request, res: Response) {
   const userId = req.user!.id;
   const lessonId = req.params.id;
-  const {
-    correctAnswers,
-    totalQuestions,
-    energyStart,
-    energyEnd
-  } = req.body;
+  const { answers } = req.body;
   const durationSeconds = req.body.durationSeconds ?? 0;
 
   const result = await withTransaction(async (client) => {
@@ -114,14 +145,46 @@ export async function completeLesson(req: Request, res: Response) {
     );
 
     const lesson = lessonResult.rows[0];
+    if (!lesson) throw new HttpError(404, 'Lesson not found');
+    if (lesson.status === 'LOCKED') throw new HttpError(403, 'Lesson is locked');
 
-    if (!lesson) {
-      throw new HttpError(404, 'Lesson not found');
+    const exerciseResult = await client.query<{
+      id: string;
+      correct_answer: string;
+    }>(
+      `
+        SELECT id, correct_answer
+        FROM exercises
+        WHERE lesson_id = $1
+        ORDER BY sort_order
+      `,
+      [lessonId]
+    );
+
+    if (answers.length !== exerciseResult.rows.length) {
+      throw new HttpError(400, 'All lesson exercises must be answered exactly once');
     }
 
-    if (lesson.status === 'LOCKED') {
-      throw new HttpError(403, 'Lesson is locked');
+    const submittedById = new Map<string, string>(
+      answers.map(
+        (item: { exerciseId: string; answer: string }) =>
+          [item.exerciseId, item.answer] as [string, string]
+      )
+    );
+
+    for (const exercise of exerciseResult.rows) {
+      if (!submittedById.has(exercise.id)) {
+        throw new HttpError(400, 'All lesson exercises must be answered exactly once');
+      }
     }
+
+    let correctAnswers = 0;
+    for (const exercise of exerciseResult.rows) {
+      const submitted = submittedById.get(exercise.id)!;
+      if (answersMatch(submitted, exercise.correct_answer)) correctAnswers += 1;
+    }
+
+    const totalQuestions = exerciseResult.rows.length;
 
     const statsResult = await client.query<{
       energy_current: number;
@@ -148,19 +211,14 @@ export async function completeLesson(req: Request, res: Response) {
     );
 
     const stats = statsResult.rows[0];
-
-    if (!stats) {
-      throw new HttpError(500, 'User stats are missing');
-    }
+    if (!stats) throw new HttpError(500, 'User stats are missing');
 
     const accuracy = Number(((correctAnswers / totalQuestions) * 100).toFixed(2));
     const wrongAnswers = totalQuestions - correctAnswers;
-    const calculatedEnergyStart = energyStart ?? stats.energy_current;
-    const calculatedEnergyEnd = Math.min(
-      stats.energy_max,
-      Math.max(0, energyEnd ?? (calculatedEnergyStart - wrongAnswers))
-    );
+    const calculatedEnergyStart = stats.energy_current;
+    const calculatedEnergyEnd = Math.max(0, calculatedEnergyStart - wrongAnswers);
     const xpEarned = lesson.xp_reward;
+    const isFirstCompletion = lesson.status !== 'COMPLETED';
 
     await client.query(
       `
@@ -292,7 +350,7 @@ export async function completeLesson(req: Request, res: Response) {
           last_activity_date = $5,
           energy_current = $6,
           energy_updated_at = NOW(),
-          lessons_completed = lessons_completed + 1
+          lessons_completed = lessons_completed + $7
         WHERE user_id = $1
       `,
       [
@@ -301,7 +359,8 @@ export async function completeLesson(req: Request, res: Response) {
         newStreak,
         newLongestStreak,
         today,
-        calculatedEnergyEnd
+        calculatedEnergyEnd,
+        isFirstCompletion ? 1 : 0
       ]
     );
 

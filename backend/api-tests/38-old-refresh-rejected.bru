@@ -1,0 +1,16 @@
+meta {
+  name: 38 Old Refresh Rejected
+  type: http
+  seq: 38
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/refresh
+  body: json
+  auth: none
+}
+body:json {
+  {"refreshToken":"{{oldRefreshToken}}"}
+}
+tests {
+  test("rotated refresh token cannot be reused", function () { expect(res.status).to.equal(401); });
+}

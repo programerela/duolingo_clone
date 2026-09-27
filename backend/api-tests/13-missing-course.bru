@@ -1,0 +1,16 @@
+meta {
+  name: 13 Missing Course
+  type: http
+  seq: 13
+}
+get {
+  url: {{baseUrl}}/api/v1/courses/00000000-0000-0000-0000-000000000000/path
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("unknown course returns 404", function () { expect(res.status).to.equal(404); });
+}

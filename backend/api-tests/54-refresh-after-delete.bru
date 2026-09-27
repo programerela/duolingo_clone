@@ -1,0 +1,16 @@
+meta {
+  name: 54 Refresh After Delete
+  type: http
+  seq: 54
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/refresh
+  body: json
+  auth: none
+}
+body:json {
+  {"refreshToken":"{{deleteRefreshToken}}"}
+}
+tests {
+  test("account deletion cascades refresh tokens", function () { expect(res.status).to.equal(401); });
+}

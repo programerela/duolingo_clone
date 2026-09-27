@@ -1,0 +1,16 @@
+meta {
+  name: 28 Me After Second Lesson
+  type: http
+  seq: 28
+}
+get {
+  url: {{baseUrl}}/api/v1/me
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("two unique lessons counted", function () { expect(res.body.stats.xpTotal).to.equal(20); expect(res.body.stats.streak).to.equal(1); expect(res.body.stats.lessonsCompleted).to.equal(2); });
+}

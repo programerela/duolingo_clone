@@ -1,0 +1,23 @@
+meta {
+  name: 27 Complete Second Lesson Same Day
+  type: http
+  seq: 27
+}
+post {
+  url: {{baseUrl}}/api/v1/lessons/{{nextLessonId}}/complete
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+body:json {
+  {"answers":[
+    {"exerciseId":"{{secondEx1Id}}","answer":"My name is Ana"},
+    {"exerciseId":"{{secondEx2Id}}","answer":"Me llamo Mark"},
+    {"exerciseId":"{{secondEx3Id}}","answer":"Soy de Inglaterra"}
+  ],"durationSeconds":40}
+}
+tests {
+  test("second lesson adds XP but streak stays one on same day", function () { expect(res.status).to.equal(200); expect(res.body.correctAnswers).to.equal(3); expect(res.body.streak).to.equal(1); expect(res.body.energy.current).to.equal(24); });
+}

@@ -1,0 +1,16 @@
+meta {
+  name: 17 Missing Lesson
+  type: http
+  seq: 17
+}
+get {
+  url: {{baseUrl}}/api/v1/lessons/00000000-0000-0000-0000-000000000000/exercises
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("unknown lesson returns 404", function () { expect(res.status).to.equal(404); });
+}

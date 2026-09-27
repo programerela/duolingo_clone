@@ -1,0 +1,19 @@
+meta {
+  name: 50 Login For Delete
+  type: http
+  seq: 50
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+body:json {
+  {"emailOrUsername":"{{updatedUsername}}","password":"password456"}
+}
+script:post-response {
+  if (res.status===200) { bru.setEnvVar("accessToken",res.body.accessToken); bru.setEnvVar("refreshToken",res.body.refreshToken); bru.setEnvVar("deleteRefreshToken",res.body.refreshToken); }
+}
+tests {
+  test("login before deletion succeeds", function () { expect(res.status).to.equal(200); });
+}

@@ -1,0 +1,22 @@
+meta {
+  name: 39 Create Username Conflict User
+  type: http
+  seq: 39
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+script:pre-request {
+  bru.setEnvVar("takenEmail", `taken_${Date.now()}@example.com`);
+}
+body:json {
+  {"email":"{{takenEmail}}","username":"{{takenUsername}}","displayName":"Taken User","password":"password123"}
+}
+script:post-response {
+  if (res.status===201) { bru.setEnvVar("secondaryAccessToken", res.body.accessToken); }
+}
+tests {
+  test("secondary user created for conflict test", function () { expect(res.status).to.equal(201); });
+}

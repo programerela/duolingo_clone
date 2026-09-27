@@ -1,0 +1,16 @@
+meta {
+  name: 35 Reactivate Spanish
+  type: http
+  seq: 35
+}
+post {
+  url: {{baseUrl}}/api/v1/courses/{{spanishCourseId}}/activate
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("Spanish reactivates", function () { expect(res.status).to.equal(200); });
+}

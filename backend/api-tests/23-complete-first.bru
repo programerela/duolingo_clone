@@ -1,0 +1,32 @@
+meta {
+  name: 23 Complete First Lesson
+  type: http
+  seq: 23
+}
+post {
+  url: {{baseUrl}}/api/v1/lessons/{{lessonId}}/complete
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+body:json {
+  {"answers":[
+    {"exerciseId":"{{ex1Id}}","answer":"Hello"},
+    {"exerciseId":"{{ex2Id}}","answer":"wrong"},
+    {"exerciseId":"{{ex3Id}}","answer":"Buenas noches"}
+  ],"durationSeconds":65}
+}
+tests {
+  test("backend calculates score XP streak and energy", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.correctAnswers).to.equal(2);
+    expect(res.body.totalQuestions).to.equal(3);
+    expect(res.body.accuracy).to.equal(66.67);
+    expect(res.body.xpEarned).to.equal(10);
+    expect(res.body.streak).to.equal(1);
+    expect(res.body.energy.current).to.equal(24);
+    expect(res.body.nextLessonUnlocked).to.equal(true);
+  });
+}

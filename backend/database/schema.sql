@@ -18,6 +18,8 @@ CREATE TABLE users (
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
+CREATE UNIQUE INDEX idx_users_email_ci_unique ON users(LOWER(email));
+CREATE UNIQUE INDEX idx_users_username_ci_unique ON users(LOWER(username));
 
 CREATE TABLE refresh_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

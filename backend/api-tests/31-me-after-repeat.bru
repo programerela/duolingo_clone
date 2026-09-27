@@ -1,0 +1,16 @@
+meta {
+  name: 31 Me After Repeat
+  type: http
+  seq: 31
+}
+get {
+  url: {{baseUrl}}/api/v1/me
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("repeat earns XP but does not double-count lessonsCompleted", function () { expect(res.body.stats.xpTotal).to.equal(30); expect(res.body.stats.lessonsCompleted).to.equal(2); expect(res.body.stats.energy.current).to.equal(24); });
+}

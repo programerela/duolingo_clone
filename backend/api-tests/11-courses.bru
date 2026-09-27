@@ -1,0 +1,30 @@
+meta {
+  name: 11 Courses
+  type: http
+  seq: 11
+}
+get {
+  url: {{baseUrl}}/api/v1/courses
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+script:post-response {
+  if (res.status === 200) {
+    const spanish = res.body.courses.find((c) => c.targetLanguageCode === "es");
+    const french = res.body.courses.find((c) => c.targetLanguageCode === "fr");
+    if (spanish) bru.setEnvVar("spanishCourseId", spanish.id);
+    if (french) bru.setEnvVar("frenchCourseId", french.id);
+  }
+}
+tests {
+  test("Spanish and French exist with camelCase fields", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.courses).to.have.length(2);
+    expect(res.body.courses.map(c => c.title)).to.include("Spanish");
+    expect(res.body.courses.map(c => c.title)).to.include("French");
+    expect(res.body.courses[0]).to.have.property("targetLanguageCode");
+  });
+}

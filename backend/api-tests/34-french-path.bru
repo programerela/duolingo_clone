@@ -1,0 +1,16 @@
+meta {
+  name: 34 French Path Independent
+  type: http
+  seq: 34
+}
+get {
+  url: {{baseUrl}}/api/v1/courses/{{frenchCourseId}}/path
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("French starts independently", function () { const lessons=res.body.sections.flatMap(s=>s.units.flatMap(u=>u.lessons)); expect(lessons[0].status).to.equal("AVAILABLE"); expect(lessons[0].completionCount).to.equal(0); expect(lessons[1].status).to.equal("LOCKED"); });
+}

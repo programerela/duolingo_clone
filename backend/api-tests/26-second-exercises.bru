@@ -1,0 +1,24 @@
+meta {
+  name: 26 Second Lesson Exercises
+  type: http
+  seq: 26
+}
+get {
+  url: {{baseUrl}}/api/v1/lessons/{{nextLessonId}}/exercises
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+script:post-response {
+  if (res.status === 200) {
+    const e=res.body.exercises;
+    bru.setEnvVar("secondEx1Id", e.find(x => x.prompt === "Me llamo Ana").id);
+    bru.setEnvVar("secondEx2Id", e.find(x => x.prompt === "My name is Mark").id);
+    bru.setEnvVar("secondEx3Id", e.find(x => x.prompt === "I am from England").id);
+  }
+}
+tests {
+  test("second lesson is now accessible", function () { expect(res.status).to.equal(200); expect(res.body.exercises).to.have.length(3); });
+}

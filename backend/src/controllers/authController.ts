@@ -66,7 +66,14 @@ export async function register(req: Request, res: Response) {
     await storeRefreshToken(client, user.id, refreshToken);
 
     return {
-      user,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.display_name,
+        timezone: user.timezone,
+        createdAt: user.created_at
+      },
       accessToken: createAccessToken(user.id),
       refreshToken
     };
@@ -169,4 +176,29 @@ export async function refresh(req: Request, res: Response) {
   });
 
   res.json(result);
+}
+
+export async function logout(req: Request, res: Response) {
+  const userId = req.user!.id;
+  const { refreshToken } = req.body;
+  const tokenHash = hashRefreshToken(refreshToken);
+
+  const result = await query(
+    `
+      UPDATE refresh_tokens
+      SET revoked_at = NOW()
+      WHERE user_id = $1
+        AND token_hash = $2
+        AND revoked_at IS NULL
+        AND expires_at > NOW()
+      RETURNING id
+    `,
+    [userId, tokenHash]
+  );
+
+  if (!result.rowCount) {
+    throw new HttpError(401, 'Invalid or expired refresh token');
+  }
+
+  res.json({ message: 'Logged out successfully' });
 }

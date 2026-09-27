@@ -1,0 +1,25 @@
+meta {
+  name: 55 Cleanup Secondary User
+  type: http
+  seq: 55
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{secondaryAccessToken}}
+}
+
+body:json {
+  {"password":"password123"}
+}
+
+tests {
+  test("secondary test user is cleaned up", function () {
+    expect(res.status).to.equal(204);
+  });
+}

@@ -1,0 +1,28 @@
+meta {
+  name: 18 First Lesson Exercises
+  type: http
+  seq: 18
+}
+get {
+  url: {{baseUrl}}/api/v1/lessons/{{lessonId}}/exercises
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+script:post-response {
+  if (res.status === 200) {
+    const e = res.body.exercises;
+    bru.setEnvVar("ex1Id", e.find(x => x.prompt === "Hola").id);
+    bru.setEnvVar("ex2Id", e.find(x => x.prompt === "Buenos días").id);
+    bru.setEnvVar("ex3Id", e.find(x => x.prompt === "Good evening").id);
+  }
+}
+tests {
+  test("exercise list does not leak correct answers", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.exercises).to.have.length(3);
+    res.body.exercises.forEach(e => expect(e).to.not.have.property("correctAnswer"));
+  });
+}

@@ -1,0 +1,23 @@
+meta {
+  name: 29 Repeat First Lesson
+  type: http
+  seq: 29
+}
+post {
+  url: {{baseUrl}}/api/v1/lessons/{{lessonId}}/complete
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+body:json {
+  {"answers":[
+    {"exerciseId":"{{ex1Id}}","answer":"Hello"},
+    {"exerciseId":"{{ex2Id}}","answer":"Good morning"},
+    {"exerciseId":"{{ex3Id}}","answer":"Buenas noches"}
+  ],"durationSeconds":30}
+}
+tests {
+  test("repeating lesson can improve accuracy", function () { expect(res.status).to.equal(200); expect(res.body.accuracy).to.equal(100); expect(res.body.streak).to.equal(1); });
+}

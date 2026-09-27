@@ -1,0 +1,22 @@
+meta {
+  name: 37 Refresh Rotation
+  type: http
+  seq: 37
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/refresh
+  body: json
+  auth: none
+}
+script:pre-request {
+  bru.setEnvVar("oldRefreshToken", bru.getEnvVar("refreshToken"));
+}
+body:json {
+  {"refreshToken":"{{refreshToken}}"}
+}
+script:post-response {
+  if (res.status===200) { bru.setEnvVar("accessToken",res.body.accessToken); bru.setEnvVar("refreshToken",res.body.refreshToken); }
+}
+tests {
+  test("refresh rotates tokens", function () { expect(res.status).to.equal(200); expect(res.body.refreshToken).to.not.equal(bru.getEnvVar("oldRefreshToken")); });
+}

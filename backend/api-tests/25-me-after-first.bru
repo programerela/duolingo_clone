@@ -1,0 +1,16 @@
+meta {
+  name: 25 Me After First Lesson
+  type: http
+  seq: 25
+}
+get {
+  url: {{baseUrl}}/api/v1/me
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("first lesson updates global stats", function () { expect(res.body.stats.xpTotal).to.equal(10); expect(res.body.stats.streak).to.equal(1); expect(res.body.stats.energy.current).to.equal(24); expect(res.body.stats.lessonsCompleted).to.equal(1); });
+}

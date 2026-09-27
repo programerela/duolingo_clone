@@ -1,0 +1,19 @@
+meta {
+  name: 52 Delete Account
+  type: http
+  seq: 52
+}
+delete {
+  url: {{baseUrl}}/api/v1/me
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+body:json {
+  {"password":"password456"}
+}
+tests {
+  test("account is deleted", function () { expect(res.status).to.equal(204); });
+}

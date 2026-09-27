@@ -1,0 +1,16 @@
+meta {
+  name: 53 Login After Delete
+  type: http
+  seq: 53
+}
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+body:json {
+  {"emailOrUsername":"{{updatedUsername}}","password":"password456"}
+}
+tests {
+  test("deleted account cannot log in", function () { expect(res.status).to.equal(401); });
+}

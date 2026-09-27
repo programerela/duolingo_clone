@@ -1,0 +1,19 @@
+meta {
+  name: 21 Missing Exercise
+  type: http
+  seq: 21
+}
+post {
+  url: {{baseUrl}}/api/v1/lessons/{{lessonId}}/exercises/00000000-0000-0000-0000-000000000000/check
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+body:json {
+  {"answer":"Hello"}
+}
+tests {
+  test("unknown exercise returns 404", function () { expect(res.status).to.equal(404); });
+}

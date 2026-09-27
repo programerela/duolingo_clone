@@ -1,0 +1,16 @@
+meta {
+  name: 32 Leaderboard
+  type: http
+  seq: 32
+}
+get {
+  url: {{baseUrl}}/api/v1/leaderboard/weekly
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("weekly leaderboard includes earned XP", function () { expect(res.status).to.equal(200); const me=res.body.entries.find(e=>e.isCurrentUser); expect(me.xp).to.equal(30); });
+}

@@ -1,0 +1,16 @@
+meta {
+  name: 14 Activate Spanish
+  type: http
+  seq: 14
+}
+post {
+  url: {{baseUrl}}/api/v1/courses/{{spanishCourseId}}/activate
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{accessToken}}
+}
+tests {
+  test("Spanish activates", function () { expect(res.status).to.equal(200); expect(res.body.course.title).to.equal("Spanish"); });
+}
