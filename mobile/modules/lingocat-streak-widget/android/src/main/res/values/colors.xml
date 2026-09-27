@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="lingocat_widget_background">#131F24</color>
+  <color name="lingocat_widget_border">#37464F</color>
+  <color name="lingocat_widget_green">#58CC02</color>
+  <color name="lingocat_widget_flame_soft">#3A2A16</color>
+  <color name="lingocat_widget_text">#F1F7FB</color>
+  <color name="lingocat_widget_text_muted">#AFAFAF</color>
+</resources>

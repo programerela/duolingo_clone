@@ -1,0 +1,99 @@
+import { useState, type ReactNode } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Pressable, ScrollView, Share, Switch, Text, View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Screen } from '../components/ui/Screen';
+import { PageHeader } from '../components/navigation/PageHeader';
+import { DuoButton } from '../components/ui/DuoButton';
+import { CatMascot } from '../components/mascot/CatMascot';
+import { useTheme } from '../providers/ThemeProvider';
+import { profileApi } from '../services/profileApi';
+import { shopApi } from '../services/shopApi';
+import { usePreferencesStore } from '../store/preferencesStore';
+import { useSound } from '../providers/SoundProvider';
+
+function Progress({ value, max, color }: { value: number; max: number; color: string }) {
+  const { colors } = useTheme();
+  const pct = Math.max(4, Math.min(100, max ? (value / max) * 100 : 0));
+  return <View style={{ height: 12, borderRadius: 7, backgroundColor: colors.border, overflow: 'hidden' }}><View style={{ height: '100%', width: `${pct}%`, backgroundColor: color, borderRadius: 7 }} /></View>;
+}
+
+function Card({ children }: { children: ReactNode }) {
+  const { colors } = useTheme();
+  return <View style={{ borderWidth: 2, borderBottomWidth: 4, borderColor: colors.border, borderRadius: 19, backgroundColor: colors.surface, padding: 16 }}>{children}</View>;
+}
+
+export default function FeatureScreen() {
+  const p = useLocalSearchParams<{ title?: string; description?: string; icon?: string }>();
+  const title = typeof p.title === 'string' ? p.title : 'Details';
+  const description = typeof p.description === 'string' ? p.description : '';
+  const { colors } = useTheme();
+  const { play } = useSound();
+  const meQuery = useQuery({ queryKey: ['me'], queryFn: profileApi.me });
+  const shopQuery = useQuery({ queryKey: ['shop'], queryFn: shopApi.get });
+  const me = meQuery.data;
+  const shop = shopQuery.data;
+
+  const streakReminder = usePreferencesStore((s) => s.streakReminder);
+  const practiceReminder = usePreferencesStore((s) => s.practiceReminder);
+  const motivationMessages = usePreferencesStore((s) => s.motivationMessages);
+  const setStreakReminder = usePreferencesStore((s) => s.setStreakReminder);
+  const setPracticeReminder = usePreferencesStore((s) => s.setPracticeReminder);
+  const setMotivationMessages = usePreferencesStore((s) => s.setMotivationMessages);
+
+  if (title === 'Gems') {
+    return <Screen><PageHeader title="Gems"/><ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
+      <View style={{ alignItems: 'center', marginTop: 8 }}><View style={{ width: 104, height: 104, borderRadius: 32, backgroundColor: colors.blueSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="diamond" size={58} color={colors.blue}/></View><Text style={{ color: colors.textPrimary, fontSize: 34, fontWeight: '900', marginTop: 12 }}>{shop?.gems ?? me?.stats.gems ?? 0}</Text><Text style={{ color: colors.textSecondary, fontSize: 13, fontWeight: '800' }}>AVAILABLE GEMS</Text></View>
+      <Text style={{ color: colors.textPrimary, fontSize: 20, fontWeight: '900', marginTop: 28, marginBottom: 12 }}>How to earn gems</Text>
+      <View style={{ gap: 11 }}><Card><View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}><View style={{ width: 50, height: 50, borderRadius: 15, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="book" size={27} color={colors.green}/></View><View style={{ flex: 1 }}><Text style={{ color: colors.textPrimary, fontWeight: '900', fontSize: 15 }}>Finish a lesson</Text><Text style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '700', marginTop: 3 }}>Every completed lesson gives 5 gems.</Text></View><Text style={{ color: colors.blue, fontWeight: '900' }}>+5</Text></View></Card><Card><View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}><View style={{ width: 50, height: 50, borderRadius: 15, backgroundColor: colors.yellow + '22', alignItems: 'center', justifyContent: 'center' }}><Ionicons name="star" size={27} color={colors.yellow}/></View><View style={{ flex: 1 }}><Text style={{ color: colors.textPrimary, fontWeight: '900', fontSize: 15 }}>Accuracy bonus</Text><Text style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '700', marginTop: 3 }}>Score 90% or more and get 10 gems total.</Text></View><Text style={{ color: colors.blue, fontWeight: '900' }}>+10</Text></View></Card></View>
+      <DuoButton title="Go to shop" onPress={() => router.replace('/shop')} style={{ marginTop: 26 }}/>
+    </ScrollView></Screen>;
+  }
+
+  if (title === 'Notifications') {
+    const ToggleRow = ({ icon, label, subtitle, value, onValueChange }: { icon: keyof typeof Ionicons.glyphMap; label: string; subtitle: string; value: boolean; onValueChange: (v: boolean) => void }) => <View style={{ minHeight: 76, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, borderBottomWidth: 2, borderBottomColor: colors.border }}><View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center' }}><Ionicons name={icon} size={22} color={colors.blue}/></View><View style={{ flex: 1 }}><Text style={{ color: colors.textPrimary, fontSize: 15, fontWeight: '900' }}>{label}</Text><Text style={{ color: colors.textSecondary, fontSize: 11, lineHeight: 16, fontWeight: '600', marginTop: 2 }}>{subtitle}</Text></View><Switch value={value} onValueChange={onValueChange} trackColor={{ false: colors.border, true: colors.green }} thumbColor={colors.white}/></View>;
+    return <Screen><PageHeader title="Notifications"/><ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 40 }}><Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 19, fontWeight: '600', marginBottom: 14 }}>Choose the reminders that help you stay consistent without getting in the way.</Text><View style={{ borderWidth: 2, borderColor: colors.border, borderRadius: 19, overflow: 'hidden', backgroundColor: colors.surface }}><ToggleRow icon="flame" label="Streak reminder" subtitle="A reminder before your streak is at risk." value={streakReminder} onValueChange={(v) => void setStreakReminder(v)}/><ToggleRow icon="book" label="Practice reminder" subtitle="A short daily nudge to complete a lesson." value={practiceReminder} onValueChange={(v) => void setPracticeReminder(v)}/><ToggleRow icon="sparkles" label="Motivation" subtitle="Progress celebrations and weekly encouragement." value={motivationMessages} onValueChange={(v) => void setMotivationMessages(v)}/></View></ScrollView></Screen>;
+  }
+
+  if (title === 'Email address') {
+    return <Screen><PageHeader title="Email address"/><View style={{ flex: 1, padding: 20 }}><Card><View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}><View style={{ width: 50, height: 50, borderRadius: 15, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="checkmark-circle" size={29} color={colors.green}/></View><View style={{ flex: 1 }}><Text style={{ color: colors.textPrimary, fontSize: 15, fontWeight: '900' }}>{me?.email ?? 'No email'}</Text><Text style={{ color: colors.green, fontSize: 11, fontWeight: '900', marginTop: 3 }}>VERIFIED</Text></View></View></Card><Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20, fontWeight: '600', marginTop: 16 }}>Your email is used for sign-in, account recovery and important security notices.</Text></View></Screen>;
+  }
+
+  if (title === 'Streak') {
+    const streak = me?.stats.streak ?? 0;
+    const longest = me?.stats.longestStreak ?? 0;
+    return <Screen><PageHeader title="Streak"/><ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}><View style={{ alignItems: 'center' }}><View style={{ width: 108, height: 108, borderRadius: 34, backgroundColor: colors.mode === 'dark' ? '#4B3213' : '#FFF1D7', alignItems: 'center', justifyContent: 'center' }}><Ionicons name="flame" size={65} color={colors.orange}/></View><Text style={{ color: colors.textPrimary, fontSize: 38, fontWeight: '900', marginTop: 10 }}>{streak}</Text><Text style={{ color: colors.textSecondary, fontSize: 13, fontWeight: '900' }}>DAY STREAK</Text></View><View style={{ flexDirection: 'row', gap: 8, marginTop: 26 }}>{['M','T','W','T','F','S','S'].map((d,i)=><View key={`${d}-${i}`} style={{ flex:1, alignItems:'center', gap:8 }}><Text style={{ color: colors.textMuted, fontSize: 11, fontWeight:'900' }}>{d}</Text><View style={{ width:34,height:34,borderRadius:17,alignItems:'center',justifyContent:'center',backgroundColor:i < Math.min(streak,7)?colors.orange:colors.surfaceRaised,borderWidth:2,borderColor:i < Math.min(streak,7)?colors.orange:colors.border }}><Ionicons name={i < Math.min(streak,7)?'checkmark':'ellipse-outline'} size={17} color={i < Math.min(streak,7)?colors.white:colors.textMuted}/></View></View>)}</View><View style={{ flexDirection:'row',gap:10,marginTop:28 }}><View style={{ flex:1 }}><Card><Text style={{ color:colors.textSecondary,fontSize:11,fontWeight:'900' }}>CURRENT</Text><Text style={{ color:colors.textPrimary,fontSize:24,fontWeight:'900',marginTop:3 }}>{streak} days</Text></Card></View><View style={{ flex:1 }}><Card><Text style={{ color:colors.textSecondary,fontSize:11,fontWeight:'900' }}>LONGEST</Text><Text style={{ color:colors.textPrimary,fontSize:24,fontWeight:'900',marginTop:3 }}>{longest} days</Text></Card></View></View><Text style={{ color: colors.textPrimary, fontSize: 19, fontWeight:'900', marginTop:28 }}>Keep it alive</Text><Text style={{ color:colors.textSecondary,fontSize:13,lineHeight:20,fontWeight:'600',marginTop:7 }}>Complete at least one lesson every day. A Streak Freeze can protect one missed day.</Text></ScrollView></Screen>;
+  }
+
+  if (title === 'Daily reward') {
+    const xp = me?.stats.xpTotal ?? 0; const lessons = me?.stats.lessonsCompleted ?? 0; const streak = me?.stats.streak ?? 0;
+    const rows = [{ label:'Earn 20 XP', value:Math.min(xp,20), max:20, icon:'flash' as const },{ label:'Complete 2 lessons', value:Math.min(lessons,2), max:2, icon:'book' as const },{ label:'Keep your streak', value:Math.min(streak,1), max:1, icon:'flame' as const }];
+    const allDone = rows.every((r) => r.value >= r.max);
+    return <Screen><PageHeader title="Daily reward"/><ScrollView contentContainerStyle={{ padding:20,paddingBottom:40 }}><View style={{ alignItems:'center',marginTop:5 }}><View style={{ width:112,height:112,borderRadius:34,backgroundColor:colors.purpleSoft,alignItems:'center',justifyContent:'center' }}><Ionicons name={allDone?'gift':'lock-closed'} size={56} color={colors.purple}/></View><Text style={{ color:colors.textPrimary,fontSize:25,fontWeight:'900',marginTop:14 }}>{allDone?'Reward ready!':'Complete today’s quests'}</Text><Text style={{ color:colors.textSecondary,fontSize:13,fontWeight:'700',marginTop:5 }}>Daily chest · 15 gem reward</Text></View><View style={{ gap:10,marginTop:26 }}>{rows.map((r)=><Card key={r.label}><View style={{ flexDirection:'row',alignItems:'center',gap:12 }}><Ionicons name={r.icon} size={24} color={r.value>=r.max?colors.green:colors.blue}/><View style={{ flex:1 }}><View style={{ flexDirection:'row',justifyContent:'space-between',marginBottom:8 }}><Text style={{ color:colors.textPrimary,fontWeight:'900' }}>{r.label}</Text><Text style={{ color:colors.textSecondary,fontWeight:'900' }}>{r.value}/{r.max}</Text></View><Progress value={r.value} max={r.max} color={r.value>=r.max?colors.green:colors.blue}/></View></View></Card>)}</View><View style={{ marginTop:24,padding:14,borderRadius:16,backgroundColor:allDone?colors.greenSoft:colors.surfaceRaised }}><Text style={{ color:allDone?colors.green:colors.textSecondary,textAlign:'center',fontWeight:'900' }}>{allDone?'All goals complete — great work!':'The chest unlocks when all three goals are complete.'}</Text></View></ScrollView></Screen>;
+  }
+
+  if (title === 'Friend Quests') {
+    return <Screen><PageHeader title="Friend Quests"/><ScrollView contentContainerStyle={{ padding:20,paddingBottom:40 }}><View style={{ alignItems:'center',marginTop:8 }}><View style={{ flexDirection:'row',alignItems:'center' }}><View style={{ marginRight:-13,zIndex:2 }}><CatMascot size={78}/></View><View style={{ width:76,height:76,borderRadius:25,backgroundColor:colors.blueSoft,borderWidth:3,borderColor:colors.background,alignItems:'center',justifyContent:'center' }}><Ionicons name="person-add" size={32} color={colors.blue}/></View></View><Text style={{ color:colors.textPrimary,fontSize:24,fontWeight:'900',marginTop:16 }}>Learn better together</Text><Text style={{ color:colors.textSecondary,fontSize:13,lineHeight:20,fontWeight:'600',textAlign:'center',maxWidth:320,marginTop:6 }}>Team up with a friend, earn XP together and unlock a shared weekly reward.</Text></View><Card><Text style={{ color:colors.textPrimary,fontSize:16,fontWeight:'900' }}>Weekly team goal</Text><View style={{ flexDirection:'row',justifyContent:'space-between',marginTop:12,marginBottom:8 }}><Text style={{ color:colors.textSecondary,fontWeight:'700' }}>0 / 300 XP</Text><Text style={{ color:colors.purple,fontWeight:'900' }}>+30 gems</Text></View><Progress value={0} max={300} color={colors.purple}/></Card><DuoButton title="Invite a friend" onPress={()=>{play('tap');void Share.share({message:'Join me on LingoCat and let’s complete a Friend Quest together!'});}} style={{ marginTop:24 }}/></ScrollView></Screen>;
+  }
+
+  if (title === 'Lingocat Plus') {
+    const [activated,setActivated]=useState(false);
+    const benefits=[['infinite','Unlimited practice'],['heart','Mistake review'],['stats-chart','Extra progress insights'],['sparkles','Premium lesson style']] as const;
+    return <Screen><PageHeader title="Lingocat Plus"/><ScrollView contentContainerStyle={{ padding:20,paddingBottom:40 }}><View style={{ alignItems:'center',marginTop:4 }}><View style={{ width:110,height:110,borderRadius:34,backgroundColor:colors.purpleSoft,alignItems:'center',justifyContent:'center' }}><Ionicons name="sparkles" size={57} color={colors.purple}/></View><Text style={{ color:colors.textPrimary,fontSize:28,fontWeight:'900',marginTop:14 }}>Learn without limits</Text><Text style={{ color:colors.textSecondary,fontSize:13,lineHeight:20,fontWeight:'600',textAlign:'center',marginTop:6 }}>A focused premium experience for learners who want more practice.</Text></View><View style={{ gap:10,marginTop:25 }}>{benefits.map(([icon,label])=><Card key={label}><View style={{ flexDirection:'row',alignItems:'center',gap:12 }}><View style={{ width:44,height:44,borderRadius:14,backgroundColor:colors.purpleSoft,alignItems:'center',justifyContent:'center' }}><Ionicons name={icon as any} size={24} color={colors.purple}/></View><Text style={{ color:colors.textPrimary,fontSize:15,fontWeight:'900' }}>{label}</Text><Ionicons name="checkmark-circle" size={23} color={colors.green} style={{ marginLeft:'auto' }}/></View></Card>)}</View><DuoButton title={activated?'Plus active':'Try Plus'} onPress={()=>{play('complete');setActivated(true);}} disabled={activated} style={{ marginTop:24 }}/><Text style={{ color:colors.textMuted,fontSize:11,lineHeight:17,textAlign:'center',fontWeight:'600',marginTop:10 }}>No charge during the Plus trial period.</Text></ScrollView></Screen>;
+  }
+
+  if (title === 'Help center') {
+    const [open,setOpen]=useState<string|null>(null);
+    const faq=[['How does Energy work?','Wrong answers use Energy. You can refill it in the Shop with gems you earn from lessons.'],['How do streaks work?','Complete at least one lesson each day. A Streak Freeze protects one missed day.'],['How do I switch courses?','On Learn, tap the flag in the top-left corner and choose Spanish or French.'],['How do I hear pronunciation?','Tap the speaker icon in a lesson to hear Spanish or French text read aloud.']];
+    return <Screen><PageHeader title="Help center"/><ScrollView contentContainerStyle={{ padding:18,paddingBottom:40 }}><View style={{ flexDirection:'row',alignItems:'center',gap:10,borderWidth:2,borderColor:colors.border,borderRadius:16,backgroundColor:colors.surface,paddingHorizontal:14,minHeight:52,marginBottom:18 }}><Ionicons name="search" size={21} color={colors.textMuted}/><Text style={{ color:colors.textMuted,fontWeight:'700' }}>Search help topics</Text></View>{faq.map(([q,a])=><Pressable key={q} onPress={()=>setOpen(open===q?null:q)} style={{ borderBottomWidth:2,borderBottomColor:colors.border,paddingVertical:16 }}><View style={{ flexDirection:'row',alignItems:'center',gap:10 }}><Text style={{ flex:1,color:colors.textPrimary,fontSize:15,fontWeight:'900' }}>{q}</Text><Ionicons name={open===q?'chevron-up':'chevron-down'} size={20} color={colors.textMuted}/></View>{open===q&&<Text style={{ color:colors.textSecondary,fontSize:13,lineHeight:20,fontWeight:'600',marginTop:10 }}>{a}</Text>}</Pressable>)}</ScrollView></Screen>;
+  }
+
+  if (title === 'About Lingocat') {
+    return <Screen><PageHeader title="About LingoCat"/><ScrollView contentContainerStyle={{ padding:20,paddingBottom:40,alignItems:'center' }}><CatMascot size={130} mood="happy"/><Text style={{ color:colors.green,fontSize:28,fontWeight:'900',marginTop:12 }}>LingoCat</Text><Text style={{ color:colors.textSecondary,fontSize:13,fontWeight:'700',marginTop:3 }}>Language learning, one small win at a time.</Text><View style={{ width:'100%',marginTop:28,gap:10 }}><Card><Text style={{ color:colors.textSecondary,fontSize:11,fontWeight:'900' }}>VERSION</Text><Text style={{ color:colors.textPrimary,fontSize:16,fontWeight:'900',marginTop:4 }}>Version 1.0.0</Text></Card><Card><Text style={{ color:colors.textSecondary,fontSize:11,fontWeight:'900' }}>TECHNOLOGY</Text><Text style={{ color:colors.textPrimary,fontSize:14,lineHeight:22,fontWeight:'700',marginTop:4 }}>React Native + Expo · TypeScript · Node.js · Express · PostgreSQL · Kotlin widget</Text></Card><Card><Text style={{ color:colors.textSecondary,fontSize:11,fontWeight:'900' }}>COURSES</Text><Text style={{ color:colors.textPrimary,fontSize:14,fontWeight:'700',marginTop:4 }}>English → Spanish · English → French</Text></Card></View></ScrollView></Screen>;
+  }
+
+  const statLike = ['Day streak','Total XP','Longest streak','Lessons','Streak starter','Scholar','Bronze League','Join the league'].includes(title);
+  const icon = (p.icon as keyof typeof Ionicons.glyphMap) || 'sparkles';
+  return <Screen><PageHeader title={title}/><ScrollView contentContainerStyle={{ padding:22,paddingBottom:40 }}><View style={{ alignItems:'center',marginTop:12 }}><View style={{ width:96,height:96,borderRadius:30,backgroundColor:colors.blueSoft,alignItems:'center',justifyContent:'center' }}><Ionicons name={icon} size={47} color={colors.blue}/></View>{statLike&&<CatMascot size={84} mood="happy"/>}<Text style={{ color:colors.textPrimary,fontSize:27,fontWeight:'900',textAlign:'center',marginTop:statLike?8:20 }}>{title}</Text>{description&&<Text style={{ color:colors.textSecondary,fontSize:14,fontWeight:'600',lineHeight:21,textAlign:'center',marginTop:8,maxWidth:330 }}>{description}</Text>}</View><View style={{ marginTop:28 }}><Card><Text style={{ color:colors.textPrimary,fontSize:15,fontWeight:'900' }}>Your progress</Text><Text style={{ color:colors.textSecondary,fontSize:12,lineHeight:18,fontWeight:'600',marginTop:5 }}>Keep completing lessons to move this number forward and unlock the next part of your course.</Text><View style={{ marginTop:14 }}><Progress value={Math.max(1,me?.stats.lessonsCompleted??0)} max={Math.max(3,(me?.stats.lessonsCompleted??0)+2)} color={colors.green}/></View></Card></View><DuoButton title="Continue learning" onPress={()=>router.replace('/learn')} style={{ marginTop:24 }}/></ScrollView></Screen>;
+}

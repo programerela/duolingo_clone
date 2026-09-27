@@ -218,6 +218,7 @@ export async function completeLesson(req: Request, res: Response) {
     const calculatedEnergyStart = stats.energy_current;
     const calculatedEnergyEnd = Math.max(0, calculatedEnergyStart - wrongAnswers);
     const xpEarned = lesson.xp_reward;
+    const gemsEarned = accuracy >= 90 ? 10 : 5;
     const isFirstCompletion = lesson.status !== 'COMPLETED';
 
     await client.query(
@@ -350,7 +351,8 @@ export async function completeLesson(req: Request, res: Response) {
           last_activity_date = $5,
           energy_current = $6,
           energy_updated_at = NOW(),
-          lessons_completed = lessons_completed + $7
+          lessons_completed = lessons_completed + $7,
+          gems_balance = gems_balance + $8
         WHERE user_id = $1
       `,
       [
@@ -360,7 +362,8 @@ export async function completeLesson(req: Request, res: Response) {
         newLongestStreak,
         today,
         calculatedEnergyEnd,
-        isFirstCompletion ? 1 : 0
+        isFirstCompletion ? 1 : 0,
+        gemsEarned
       ]
     );
 
@@ -394,6 +397,7 @@ export async function completeLesson(req: Request, res: Response) {
 
     return {
       xpEarned,
+      gemsEarned,
       accuracy,
       correctAnswers,
       totalQuestions,

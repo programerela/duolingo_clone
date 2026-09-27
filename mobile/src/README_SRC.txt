@@ -1,27 +1,10 @@
-LINGOCAT FRONTEND SRC v2
+LINGOCAT MOBILE SRC v4
 
-This src folder is designed for the current Expo Router + TypeScript project.
-Main changes in this iteration:
-- proper Android/iOS safe areas at top and bottom
-- bottom tab bar respects Samsung navigation inset
-- Android back from the main tabs exits the app instead of walking back into auth screens
-- polished Duolingo-style dark UI across Learn, Lesson, Profile, League, Quests, Shop and Settings
-- profile editing, password change and account delete use the existing v1.1 backend
-- original Lingocat mascot component (no Duo owl asset)
-- original local sound effects: tap, correct, wrong and lesson-complete
-- sound effects can be switched on/off from Settings
-- react-native SafeAreaView deprecation removed
-
-REQUIRED PACKAGES OUTSIDE SRC:
-  npx expo install expo-audio react-native-safe-area-context @expo/vector-icons
-
-Because expo-audio is native, run one Android rebuild after installing it:
-  adb reverse tcp:3000 tcp:3000
-  adb reverse tcp:8081 tcp:8081
-  npx expo run:android --device
-
-For normal JS/TS changes afterwards:
-  npx expo start --dev-client -c
-
-Keep mobile/.env:
-  EXPO_PUBLIC_API_URL=http://127.0.0.1:3000/api/v1
+Highlights:
+- Fixed lesson render error around Pressable state.
+- Refined cat mascot and more polished dark/light UI.
+- Spanish/French text-to-speech pronunciation in lessons.
+- 5-question lessons (requires the previously supplied 002_longer_lessons.sql migration).
+- Real gem economy when paired with backend v1.2: lessons reward gems, Energy refill spends gems, Streak Freeze spends gems.
+- Shop, Quests, Friend Quests, Streak, Gems, Notifications, Help, About, premium and stats/detail screens all present realistic content and interactions.
+- Safe-area aware layouts and protected navigation remain enabled.

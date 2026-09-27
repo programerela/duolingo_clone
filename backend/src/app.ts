@@ -7,6 +7,7 @@ import lessonRoutes from './routes/lessonRoutes';
 import meRoutes from './routes/meRoutes';
 import profileRoutes from './routes/profileRoutes';
 import leaderboardRoutes from './routes/leaderboardRoutes';
+import shopRoutes from './routes/shopRoutes';
 import { errorMiddleware } from './middleware/errorMiddleware';
 import { notFoundMiddleware } from './middleware/notFoundMiddleware';
 import { query } from './config/db';
@@ -41,6 +42,7 @@ app.use('/api/v1/courses', courseRoutes);
 app.use('/api/v1/lessons', lessonRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/leaderboard', leaderboardRoutes);
+app.use('/api/v1/shop', shopRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

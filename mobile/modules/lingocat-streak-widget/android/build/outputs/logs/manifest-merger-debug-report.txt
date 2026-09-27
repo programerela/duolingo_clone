@@ -1,0 +1,40 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:2:1-18:12
+INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:2:1-18:12
+	package
+		INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:3:3-17:17
+receiver#expo.modules.lingocatstreakwidget.LingoCatStreakWidgetProvider
+ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:4:5-16:16
+	android:enabled
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:6:7-29
+	android:label
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:8:7-58
+	android:exported
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:7:7-30
+	android:name
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:5:7-84
+intent-filter#action:name:android.appwidget.action.APPWIDGET_UPDATE
+ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:9:7-11:23
+action#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:10:9-76
+	android:name
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:10:17-73
+meta-data#android.appwidget.provider
+ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:13:7-15:63
+	android:resource
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:15:9-60
+	android:name
+		ADDED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:14:9-50
+uses-sdk
+INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml
+INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml

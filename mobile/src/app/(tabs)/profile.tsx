@@ -1,113 +1,23 @@
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { CatMascot } from '../../components/mascot/CatMascot';
 import { Screen } from '../../components/ui/Screen';
 import { profileApi } from '../../services/profileApi';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../providers/ThemeProvider';
 import { useSound } from '../../providers/SoundProvider';
 
-export default function ProfileScreen() {
-  const query = useQuery({ queryKey: ['me'], queryFn: profileApi.me });
-  const me = query.data;
-  const { play } = useSound();
-
-  if (query.isLoading) {
-    return <Screen edges={['top', 'left', 'right']} style={styles.center}><ActivityIndicator color={colors.green} size="large" /></Screen>;
-  }
-
-  const joined = me?.createdAt
-    ? new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(new Date(me.createdAt))
-    : '';
-
-  return (
-    <Screen edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.screen} showsVerticalScrollIndicator={false}>
-        <View style={styles.topRow}>
-          <Text style={styles.title}>Profile</Text>
-          <Pressable
-            hitSlop={12}
-            onPress={() => {
-              play('tap');
-              router.push('/settings');
-            }}
-            style={({ pressed }) => [styles.settings, pressed && { opacity: 0.55 }]}
-          >
-            <Ionicons name="settings-sharp" size={25} color={colors.textSecondary} />
-          </Pressable>
-        </View>
-
-        <View style={styles.identity}>
-          <CatMascot size={116} mood="happy" />
-          <Text style={styles.name}>{me?.displayName || me?.username}</Text>
-          <Text style={styles.username}>@{me?.username}</Text>
-          {!!joined && <Text style={styles.joined}>Joined {joined}</Text>}
-        </View>
-
-        <View style={styles.divider} />
-        <Text style={styles.sectionTitle}>Statistics</Text>
-        <View style={styles.statsGrid}>
-          <Stat label="Day streak" value={me?.stats.streak ?? 0} icon="flame" color={colors.orange} />
-          <Stat label="Total XP" value={me?.stats.xpTotal ?? 0} icon="flash" color={colors.yellow} />
-          <Stat label="Longest streak" value={me?.stats.longestStreak ?? 0} icon="trophy" color={colors.yellow} />
-          <Stat label="Lessons" value={me?.stats.lessonsCompleted ?? 0} icon="book" color={colors.blue} />
-        </View>
-
-        <Text style={styles.sectionTitle}>Achievements</Text>
-        <View style={styles.achievementCard}>
-          <View style={[styles.badge, { backgroundColor: colors.greenSoft }]}>
-            <Ionicons name="flame" size={28} color={colors.green} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.achievementTitle}>Streak starter</Text>
-            <Text style={styles.achievementText}>{me?.stats.streak ? `${me.stats.streak}-day streak in progress` : 'Complete a lesson today to start a streak'}</Text>
-          </View>
-        </View>
-        <View style={styles.achievementCard}>
-          <View style={[styles.badge, { backgroundColor: colors.blueSoft }]}>
-            <Ionicons name="school" size={27} color={colors.blue} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.achievementTitle}>Scholar</Text>
-            <Text style={styles.achievementText}>{me?.stats.lessonsCompleted ?? 0} lessons completed</Text>
-          </View>
-        </View>
-      </ScrollView>
-    </Screen>
-  );
+export default function ProfileScreen(){
+ const {colors}=useTheme(); const query=useQuery({queryKey:['me'],queryFn:profileApi.me}); const me=query.data; const {play}=useSound(); const open=(title:string,description:string,icon='ribbon')=>{play('tap');router.push({pathname:'/feature',params:{title,description,icon}});};
+ if(query.isLoading)return <Screen edges={['top','left','right']} style={{alignItems:'center',justifyContent:'center'}}><ActivityIndicator color={colors.green} size="large"/></Screen>;
+ const joined=me?.createdAt?new Intl.DateTimeFormat('en',{month:'long',year:'numeric'}).format(new Date(me.createdAt)):'';
+ const Stat=({label,value,icon,color}:{label:string;value:number;icon:keyof typeof Ionicons.glyphMap;color:string})=><Pressable onPress={()=>open(label,`${value} ${label.toLowerCase()} on your Lingocat profile.`,icon)} style={({pressed})=>({width:'48.5%',minHeight:86,borderWidth:2,borderColor:colors.border,borderRadius:17,padding:13,flexDirection:'row',alignItems:'center',gap:10,backgroundColor:pressed?colors.surfaceRaised:colors.surface})}><Ionicons name={icon} size={25} color={color}/><View style={{flex:1}}><Text style={{color:colors.textPrimary,fontSize:18,fontWeight:'900'}}>{value}</Text><Text style={{color:colors.textSecondary,fontSize:11,fontWeight:'700',marginTop:2}}>{label}</Text></View></Pressable>;
+ return <Screen edges={['top','left','right']}><ScrollView contentContainerStyle={{paddingHorizontal:20,paddingTop:8,paddingBottom:110}} showsVerticalScrollIndicator={false}>
+  <View style={{minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}><Text style={{color:colors.textPrimary,fontSize:28,fontWeight:'900'}}>Profile</Text><Pressable hitSlop={12} onPress={()=>{play('tap');router.push('/settings');}} style={({pressed})=>({width:44,height:44,borderRadius:14,borderWidth:2,borderColor:colors.border,alignItems:'center',justifyContent:'center',backgroundColor:pressed?colors.surfaceRaised:colors.surface})}><Ionicons name="settings-sharp" size={25} color={colors.textSecondary}/></Pressable></View>
+  <Pressable onPress={()=>router.push('/edit-profile')} style={({pressed})=>({alignItems:'center',marginTop:18,opacity:pressed?.75:1})}><View style={{padding:10,borderRadius:34,backgroundColor:colors.surfaceSoft,borderWidth:2,borderColor:colors.border}}><CatMascot size={116}/></View><Text style={{color:colors.textPrimary,fontSize:25,fontWeight:'900',marginTop:13}}>{me?.displayName||me?.username}</Text><Text style={{color:colors.textSecondary,fontSize:14,fontWeight:'700',marginTop:3}}>@{me?.username}</Text>{!!joined&&<Text style={{color:colors.textMuted,fontSize:12,fontWeight:'600',marginTop:5}}>Joined {joined}</Text>}<Text style={{color:colors.blue,fontSize:12,fontWeight:'900',marginTop:8}}>EDIT PROFILE</Text></Pressable>
+  <View style={{height:2,backgroundColor:colors.border,marginVertical:24}}/><Text style={{color:colors.textPrimary,fontSize:20,fontWeight:'900',marginBottom:12}}>Statistics</Text><View style={{flexDirection:'row',flexWrap:'wrap',gap:10}}><Stat label="Day streak" value={me?.stats.streak??0} icon="flame" color={colors.orange}/><Stat label="Total XP" value={me?.stats.xpTotal??0} icon="flash" color={colors.yellow}/><Stat label="Longest streak" value={me?.stats.longestStreak??0} icon="trophy" color={colors.yellow}/><Stat label="Lessons" value={me?.stats.lessonsCompleted??0} icon="book" color={colors.blue}/></View>
+  <Text style={{color:colors.textPrimary,fontSize:20,fontWeight:'900',marginTop:26,marginBottom:12}}>Achievements</Text>
+  {[{title:'Streak starter',text:me?.stats.streak?`${me.stats.streak}-day streak in progress`:'Complete a lesson today to start a streak',icon:'flame' as const,color:colors.green,bg:colors.greenSoft},{title:'Scholar',text:`${me?.stats.lessonsCompleted??0} lessons completed`,icon:'school' as const,color:colors.blue,bg:colors.blueSoft}].map(a=><Pressable key={a.title} onPress={()=>open(a.title,a.text,a.icon)} style={({pressed})=>({flexDirection:'row',alignItems:'center',gap:12,borderWidth:2,borderColor:colors.border,borderRadius:17,backgroundColor:pressed?colors.surfaceRaised:colors.surface,padding:14,marginBottom:10})}><View style={{width:52,height:52,borderRadius:16,backgroundColor:a.bg,alignItems:'center',justifyContent:'center'}}><Ionicons name={a.icon} size={28} color={a.color}/></View><View style={{flex:1}}><Text style={{color:colors.textPrimary,fontSize:16,fontWeight:'900'}}>{a.title}</Text><Text style={{color:colors.textSecondary,fontSize:12,fontWeight:'600',marginTop:3}}>{a.text}</Text></View><Ionicons name="chevron-forward" size={22} color={colors.textMuted}/></Pressable>)}
+ </ScrollView></Screen>;
 }
-
-function Stat({ label, value, icon, color }: { label: string; value: number; icon: keyof typeof Ionicons.glyphMap; color: string }) {
-  return (
-    <View style={styles.statCard}>
-      <Ionicons name={icon} size={25} color={color} />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.statValue}>{value}</Text>
-        <Text style={styles.statLabel}>{label}</Text>
-      </View>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  center: { alignItems: 'center', justifyContent: 'center' },
-  screen: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 110 },
-  topRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { color: colors.textPrimary, fontSize: 28, fontWeight: '900' },
-  settings: { width: 44, height: 44, borderRadius: 14, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
-  identity: { alignItems: 'center', marginTop: 18 },
-  name: { color: colors.textPrimary, fontSize: 25, fontWeight: '900', marginTop: 13 },
-  username: { color: colors.textSecondary, fontWeight: '700', marginTop: 4 },
-  joined: { color: colors.textMuted, fontSize: 12, fontWeight: '600', marginTop: 6 },
-  divider: { height: 2, backgroundColor: colors.border, marginTop: 28 },
-  sectionTitle: { color: colors.textPrimary, fontSize: 20, fontWeight: '900', marginTop: 28, marginBottom: 13 },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11 },
-  statCard: { width: '48.4%', minHeight: 88, borderWidth: 2, borderBottomWidth: 4, borderColor: colors.border, borderRadius: 16, padding: 13, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  statValue: { color: colors.textPrimary, fontSize: 20, fontWeight: '900' },
-  statLabel: { color: colors.textSecondary, fontSize: 11, fontWeight: '700', marginTop: 2 },
-  achievementCard: { minHeight: 82, borderWidth: 2, borderColor: colors.border, borderRadius: 16, padding: 13, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 13, marginBottom: 10 },
-  badge: { width: 50, height: 50, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  achievementTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '900' },
-  achievementText: { color: colors.textSecondary, fontSize: 12, lineHeight: 17, fontWeight: '600', marginTop: 3 },
-});

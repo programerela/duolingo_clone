@@ -1,0 +1,18 @@
+expo.modules.lingocatstreakwidget
+color lingocat_widget_background
+color lingocat_widget_border
+color lingocat_widget_flame_soft
+color lingocat_widget_green
+color lingocat_widget_text
+color lingocat_widget_text_muted
+drawable lingocat_widget_background
+drawable lingocat_widget_flame_background
+id widget_message
+id widget_root
+id widget_streak_count
+layout lingocat_streak_widget
+string lingocat_streak_widget_name
+string lingocat_widget_brand
+string lingocat_widget_day_streak
+string lingocat_widget_default_message
+xml lingocat_streak_widget_info

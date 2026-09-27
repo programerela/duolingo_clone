@@ -1,0 +1,35 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="expo.modules.lingocatstreakwidget" >
+4
+5    <uses-sdk android:minSdkVersion="24" />
+6
+7    <application>
+7-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:3:3-17:17
+8        <receiver
+8-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:4:5-16:16
+9            android:name="expo.modules.lingocatstreakwidget.LingoCatStreakWidgetProvider"
+9-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:5:7-84
+10            android:enabled="true"
+10-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:6:7-29
+11            android:exported="true"
+11-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:7:7-30
+12            android:label="@string/lingocat_streak_widget_name" >
+12-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:8:7-58
+13            <intent-filter>
+13-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:9:7-11:23
+14                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+14-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:10:9-76
+14-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:10:17-73
+15            </intent-filter>
+16
+17            <meta-data
+17-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:13:7-15:63
+18                android:name="android.appwidget.provider"
+18-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:14:9-50
+19                android:resource="@xml/lingocat_streak_widget_info" />
+19-->D:\uni\duolingo_clone\mobile\modules\lingocat-streak-widget\android\src\main\AndroidManifest.xml:15:9-60
+20        </receiver>
+21    </application>
+22
+23</manifest>

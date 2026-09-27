@@ -1,72 +1,17 @@
+import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Screen } from '../../components/ui/Screen';
 import { leaderboardApi } from '../../services/leaderboardApi';
-import { colors } from '../../theme/colors';
-
-export default function LeaderboardScreen() {
-  const query = useQuery({ queryKey: ['leaderboard'], queryFn: leaderboardApi.weekly });
-
-  if (query.isLoading) {
-    return <Screen edges={['top', 'left', 'right']} style={styles.center}><ActivityIndicator color={colors.yellow} size="large" /></Screen>;
-  }
-
-  return (
-    <Screen edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.screen} showsVerticalScrollIndicator={false}>
-        <View style={styles.heroBadge}>
-          <Ionicons name="shield" size={55} color={colors.yellow} />
-        </View>
-        <Text style={styles.title}>Bronze League</Text>
-        <Text style={styles.subtitle}>Earn XP to climb the weekly rankings</Text>
-        <View style={styles.rule} />
-        <View style={styles.list}>
-          {query.data?.entries.length ? query.data.entries.map((entry) => (
-            <View key={entry.userId} style={[styles.row, entry.isCurrentUser && styles.mine]}>
-              <Text style={[styles.rank, entry.rank <= 3 && styles.topRank]}>{entry.rank}</Text>
-              <View style={styles.avatar}><Text style={styles.avatarText}>🐱</Text></View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{entry.displayName || entry.username}</Text>
-                <Text style={styles.league}>{entry.isCurrentUser ? 'You' : entry.league}</Text>
-              </View>
-              <View style={styles.xpWrap}>
-                <Ionicons name="flash" size={15} color={colors.yellow} />
-                <Text style={styles.xp}>{entry.xp}</Text>
-              </View>
-            </View>
-          )) : (
-            <View style={styles.emptyCard}>
-              <Ionicons name="trophy-outline" size={42} color={colors.textMuted} />
-              <Text style={styles.emptyTitle}>Join the league</Text>
-              <Text style={styles.empty}>Finish a lesson to earn XP and enter the leaderboard.</Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </Screen>
-  );
+import { useTheme } from '../../providers/ThemeProvider';
+import { useSound } from '../../providers/SoundProvider';
+export default function LeaderboardScreen(){
+ const {colors}=useTheme(); const {play}=useSound(); const query=useQuery({queryKey:['leaderboard'],queryFn:leaderboardApi.weekly});
+ const open=(title:string,description:string,icon='shield')=>router.push({pathname:'/feature',params:{title,description,icon}});
+ if(query.isLoading)return <Screen edges={['top','left','right']} style={{alignItems:'center',justifyContent:'center'}}><ActivityIndicator color={colors.yellow} size="large"/></Screen>;
+ return <Screen edges={['top','left','right']}><ScrollView contentContainerStyle={{paddingHorizontal:18,paddingTop:18,paddingBottom:110,alignItems:'center'}} showsVerticalScrollIndicator={false}>
+  <Pressable onPress={()=>{play('tap');open('Bronze League','Top learners move up at the end of each weekly league.');}} style={({pressed})=>({width:100,height:100,borderRadius:32,backgroundColor:colors.mode==='dark'?'#3C3210':'#FFF7D6',borderWidth:2,borderColor:colors.yellowPressed,alignItems:'center',justifyContent:'center',opacity:pressed?.7:1})}><Ionicons name="shield" size={58} color={colors.yellow}/></Pressable><Text style={{color:colors.textPrimary,fontSize:28,fontWeight:'900',marginTop:16}}>Bronze League</Text><Text style={{color:colors.textSecondary,fontWeight:'700',textAlign:'center',marginTop:6}}>Earn XP to climb the weekly rankings</Text><View style={{height:2,backgroundColor:colors.border,width:'100%',marginTop:24}}/>
+  <View style={{width:'100%',marginTop:12}}>{query.data?.entries.length?query.data.entries.map(entry=><Pressable key={entry.userId} onPress={()=>{play('tap');open(entry.displayName||entry.username,`${entry.xp} XP this week · ${entry.league} league`,'person-circle');}} style={({pressed})=>({minHeight:68,borderRadius:14,flexDirection:'row',alignItems:'center',paddingHorizontal:11,gap:10,marginBottom:4,backgroundColor:entry.isCurrentUser?colors.blueSoft:pressed?colors.surfaceRaised:colors.transparent,borderWidth:entry.isCurrentUser?2:0,borderColor:entry.isCurrentUser?colors.blue:colors.transparent})}><Text style={{color:entry.rank<=3?colors.yellow:colors.textSecondary,width:27,textAlign:'center',fontWeight:'900',fontSize:16}}>{entry.rank}</Text><View style={{width:44,height:44,borderRadius:16,backgroundColor:colors.surfaceRaised,alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:23}}>🐱</Text></View><View style={{flex:1}}><Text style={{color:colors.textPrimary,fontWeight:'900',fontSize:15}}>{entry.displayName||entry.username}</Text><Text style={{color:colors.textSecondary,fontSize:11,fontWeight:'700',marginTop:2}}>{entry.isCurrentUser?'You':entry.league}</Text></View><View style={{flexDirection:'row',alignItems:'center',gap:3}}><Ionicons name="flash" size={15} color={colors.yellow}/><Text style={{color:colors.textSecondary,fontWeight:'900'}}>{entry.xp}</Text></View></Pressable>):<Pressable onPress={()=>open('Join the league','Finish a lesson to earn XP and enter the weekly leaderboard.','trophy-outline')} style={{alignItems:'center',borderWidth:2,borderColor:colors.border,borderRadius:18,backgroundColor:colors.surface,padding:24,marginTop:14}}><Ionicons name="trophy-outline" size={42} color={colors.textMuted}/><Text style={{color:colors.textPrimary,fontSize:18,fontWeight:'900',marginTop:10}}>Join the league</Text><Text style={{color:colors.textSecondary,textAlign:'center',lineHeight:20,fontWeight:'600',marginTop:6}}>Finish a lesson to earn XP and enter the leaderboard.</Text></Pressable>}</View>
+ </ScrollView></Screen>;
 }
-
-const styles = StyleSheet.create({
-  center: { alignItems: 'center', justifyContent: 'center' },
-  screen: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 110, alignItems: 'center' },
-  heroBadge: { width: 96, height: 96, borderRadius: 30, backgroundColor: '#3C3210', borderWidth: 2, borderColor: colors.yellowPressed, alignItems: 'center', justifyContent: 'center' },
-  title: { color: colors.textPrimary, fontSize: 28, fontWeight: '900', marginTop: 16 },
-  subtitle: { color: colors.textSecondary, fontWeight: '700', textAlign: 'center', marginTop: 6 },
-  rule: { height: 2, backgroundColor: colors.border, width: '100%', marginTop: 24 },
-  list: { width: '100%', marginTop: 12 },
-  row: { minHeight: 68, borderRadius: 14, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 11, gap: 10, marginBottom: 4 },
-  mine: { backgroundColor: colors.blueSoft, borderWidth: 2, borderColor: '#245B75' },
-  rank: { color: colors.textSecondary, width: 27, textAlign: 'center', fontWeight: '900', fontSize: 16 },
-  topRank: { color: colors.yellow },
-  avatar: { width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: 23 },
-  name: { color: colors.textPrimary, fontWeight: '900', fontSize: 15 },
-  league: { color: colors.textSecondary, fontSize: 11, fontWeight: '700', marginTop: 2 },
-  xpWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  xp: { color: colors.textSecondary, fontWeight: '900' },
-  emptyCard: { alignItems: 'center', borderWidth: 2, borderColor: colors.border, borderRadius: 18, backgroundColor: colors.surface, padding: 24, marginTop: 14 },
-  emptyTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '900', marginTop: 10 },
-  empty: { color: colors.textSecondary, textAlign: 'center', lineHeight: 20, fontWeight: '600', marginTop: 6 },
-});

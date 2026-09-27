@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="lingocat_streak_widget_name">LingoCat streak</string>
+  <string name="lingocat_widget_brand">LINGOCAT</string>
+  <string name="lingocat_widget_day_streak">DAY STREAK</string>
+  <string name="lingocat_widget_default_message">Complete a lesson today</string>
+</resources>

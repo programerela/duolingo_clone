@@ -42,6 +42,7 @@ export type SubmittedAnswer = {
 
 export type LessonCompleteResponse = {
   xpEarned: number;
+  gemsEarned: number;
   accuracy: number;
   correctAnswers: number;
   totalQuestions: number;
